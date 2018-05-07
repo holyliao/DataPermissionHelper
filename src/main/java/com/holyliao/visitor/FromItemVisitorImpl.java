@@ -12,24 +12,47 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.TableFunction;
 import net.sf.jsqlparser.statement.select.ValuesList;
 
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.holyliao.DPHelper;
+import com.holyliao.IdsAndColumn;
+import com.holyliao.util.SqlSpliceUtils;
+
+/**
+ * @author： liaoqixing
+ * @date： 18-5-7 下午2:49
+ * @desciptions:
+ */
 public class FromItemVisitorImpl implements FromItemVisitor {
+    private Logger logger = LoggerFactory.getLogger(FromItemVisitorImpl.class);
 
     private SubSelect subSelect;
 
     @Override
-    public void visit(Table tableName) {
+    public void visit(Table table) {
+        String tableName = table.getName();
         //关键点：解析到需要进行数据权限控制的表时进行拼装，可以从当前线程获取表数据
-        if (tableName.getName().equals("project")) {
+        //需要进行的数据权限控制的表数据
+        Map<String, IdsAndColumn> tables = DPHelper.getLocalDataPermissions().getTables();
+        if (tables.containsKey(tableName)) {
+            IdsAndColumn idsAndColumn = tables.get(tableName);
+            List<String> ids = idsAndColumn.getIds();
+            List<String> columns = idsAndColumn.getColumns();
+
             SubSelect subSelect = new SubSelect();
-            //TODO：封装工具类,不使用这么暴力的方式
-            String subSql = "select * from project where id in (1021, 1022, 1023)";
+            String subSql = SqlSpliceUtils.spliceIdAndColumn(tableName, ids, columns);
             try {
                 subSelect.setSelectBody(((Select) (CCJSqlParserUtil.parse(subSql))).getSelectBody());
             } catch (JSQLParserException e) {
-                //TODO：使用日志框架
-                System.out.println("数据权限sql解析异常");
+                logger.error("数据权限sql解析异常");
             }
-            subSelect.setAlias(tableName.getAlias() != null ? tableName.getAlias() : new Alias("DP" + System.currentTimeMillis()));
+            //TODO:采用随机别名不能避免重名
+            subSelect.setAlias(table.getAlias() != null ? table.getAlias() : new Alias("DP" + System
+                    .currentTimeMillis() + Math.random() * 1000));
             this.subSelect = subSelect;
         }
     }

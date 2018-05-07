@@ -1,21 +1,20 @@
 package com.holyliao;
 
-import java.util.function.Function;
-
 /**
  * @author liaoqixing
  * @description 数据权限开启
  * @create 2018-05-02 下午7:13
  */
 public class DPHelper {
-    protected static final ThreadLocal<DataPermission> DATA_PERMISSION = new ThreadLocal<DataPermission>();
+    protected static final ThreadLocal<DataPermission> DATA_PERMISSION = new ThreadLocal<>();
 
-    /**
-     * @param tables 表示需要进行权限控制的表，为null表示预设的表全部进行权限控制
+    /** 给当前线程设置ThreadLocal变量，设置权限
+     * @param permissionHandler 提供需要进行数据控制的表及对应有权限的id和字段
+     * @param tables 需要进行数据控制的表
      */
-    public static void start(Function<String[], DataPermission> permissionHandler, String... tables) {
+    public static void start(PermissionHandler permissionHandler, String... tables) {
         //获取权限数据
-        setLocalDataPermissions(permissionHandler.apply(tables));
+        setLocalDataPermissions(permissionHandler.getPermission(tables));
     }
 
     public static DataPermission getLocalDataPermissions() {
@@ -26,6 +25,9 @@ public class DPHelper {
         DATA_PERMISSION.set(dataPermissions);
     }
 
+    /**
+     * 需要手动清除当前线程的权限信息
+     */
     public static void clearDataPermissions() {
         DATA_PERMISSION.remove();
     }
