@@ -15,7 +15,7 @@ public class SqlSpliceUtils {
         }
         stringBuilder.deleteCharAt(stringBuilder.lastIndexOf(","));
         stringBuilder.append("FROM ").append(tableName).append(" WHERE id IN (");
-        for (String temp : columns) {
+        for (String temp : ids) {
             stringBuilder.append(temp).append(", ");
         }
         stringBuilder.delete(stringBuilder.lastIndexOf(", "), stringBuilder.length()).append(")");

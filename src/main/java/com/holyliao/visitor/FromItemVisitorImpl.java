@@ -14,6 +14,7 @@ import net.sf.jsqlparser.statement.select.ValuesList;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +52,8 @@ public class FromItemVisitorImpl implements FromItemVisitor {
                 logger.error("数据权限sql解析异常");
             }
             //TODO:采用随机别名不能避免重名
-            subSelect.setAlias(table.getAlias() != null ? table.getAlias() : new Alias("DP" + System
-                    .currentTimeMillis() + Math.random() * 1000));
+            subSelect.setAlias(table.getAlias() != null ? table.getAlias() : new Alias("DP" + UUID.randomUUID()
+                    .toString().replace("-", "")));
             this.subSelect = subSelect;
         }
     }

@@ -8,6 +8,8 @@ package com.holyliao;
 public class DPHelper {
     protected static final ThreadLocal<DataPermission> DATA_PERMISSION = new ThreadLocal<>();
 
+    protected static final ThreadLocal<Boolean> CHANGE_TABLE = new ThreadLocal<>();
+
     /** 给当前线程设置ThreadLocal变量，设置权限
      * @param permissionHandler 提供需要进行数据控制的表及对应有权限的id和字段
      * @param tables 需要进行数据控制的表
@@ -30,5 +32,13 @@ public class DPHelper {
      */
     public static void clearDataPermissions() {
         DATA_PERMISSION.remove();
+    }
+
+    public static ThreadLocal<Boolean> getChangeTable() {
+        return CHANGE_TABLE;
+    }
+
+    public static void setChangeTable(Boolean isChange) {
+        CHANGE_TABLE.set(isChange);
     }
 }
