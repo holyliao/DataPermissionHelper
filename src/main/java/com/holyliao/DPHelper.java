@@ -1,5 +1,7 @@
 package com.holyliao;
 
+import java.util.Objects;
+
 /**
  * @author liaoqixing
  * @description 数据权限开启
@@ -34,11 +36,31 @@ public class DPHelper {
         DATA_PERMISSION.remove();
     }
 
-    public static ThreadLocal<Boolean> getChangeTable() {
-        return CHANGE_TABLE;
+    /**
+     * 判断是否修改表结构
+     *
+     * @return
+     */
+    public static Boolean getChangeTable() {
+        Boolean result = CHANGE_TABLE.get();
+        if (Objects.isNull(result)) {
+            result = false;
+            setChangeTable(result);
+        }
+        return result;
     }
 
+    /**是否修改表结构
+     * @param isChange
+     */
     public static void setChangeTable(Boolean isChange) {
         CHANGE_TABLE.set(isChange);
+    }
+
+    /**
+     * 清除当前线程是否修改表结构信息
+     */
+    public static void clearChangeTable() {
+        CHANGE_TABLE.remove();
     }
 }

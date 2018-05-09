@@ -47,13 +47,18 @@ public class DataPermissionInterceptor implements Interceptor {
             String sql = boundSql.getSql();
             //获得方法类型
             Select select = (Select) CCJSqlParserUtil.parse(sql);
-            //访问各个visitor
             select.getSelectBody().accept(new SelectVisitorImpl());
-            BoundSql newBoundSql = new BoundSql(mappedStatement.getConfiguration(), select.toString(), boundSql
-                    .getParameterMappings(), parameter);
-            String newMsId = mappedStatement.getId() + DATA_PERMISSION;
-            MappedStatement newMs = copyFromMappedStatement(mappedStatement, new BoundSqlSqlSource(newBoundSql), newMsId);
-            args[0] = newMs;
+            //判断当前sql是否被修改
+            if (DPHelper.getChangeTable()) {
+                //访问各个visitor
+                //TODO:解析动态sql会失败
+                BoundSql newBoundSql = new BoundSql(mappedStatement.getConfiguration(), select.toString(), boundSql
+                        .getParameterMappings(), parameter);
+                String newMsId = mappedStatement.getId() + DATA_PERMISSION;
+                MappedStatement newMs = copyFromMappedStatement(mappedStatement, new BoundSqlSqlSource(newBoundSql), newMsId);
+                args[0] = newMs;
+                DPHelper.clearChangeTable();
+            }
         }
         return invocation.proceed();
     }

@@ -10,6 +10,8 @@ import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.WithItem;
 
+import com.holyliao.DPHelper;
+
 public class SelectVisitorImpl implements SelectVisitor {
 
     // 主要工作就是实现各种底层visitor，然后在解析的时候添加条件
@@ -31,6 +33,9 @@ public class SelectVisitorImpl implements SelectVisitor {
 
         if (fromItemVisitorImpl.getSubSelect() != null) {
             plainSelect.setFromItem(fromItemVisitorImpl.getSubSelect());
+            if (!DPHelper.getChangeTable()) {
+                DPHelper.setChangeTable(true);
+            }
         }
 
         // 访问where
@@ -45,6 +50,9 @@ public class SelectVisitorImpl implements SelectVisitor {
                 join.getRightItem().accept(fromItemVisitorImplTemp);
                 if (fromItemVisitorImplTemp.getSubSelect() != null) {
                     join.setRightItem(fromItemVisitorImplTemp.getSubSelect());
+                    if (!DPHelper.getChangeTable()) {
+                        DPHelper.setChangeTable(true);
+                    }
                 }
             }
         }
